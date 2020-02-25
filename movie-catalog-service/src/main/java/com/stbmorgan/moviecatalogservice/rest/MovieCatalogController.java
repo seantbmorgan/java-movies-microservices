@@ -1,7 +1,10 @@
 package com.stbmorgan.moviecatalogservice.rest;
 
 import com.stbmorgan.moviecatalogservice.entity.CatalogItem;
+import com.stbmorgan.moviecatalogservice.entity.Movie;
 import com.stbmorgan.moviecatalogservice.entity.Rating;
+import com.stbmorgan.moviecatalogservice.entity.UserRating;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,19 +19,21 @@ import java.util.stream.Collectors;
 @RequestMapping("/catalog")
 public class MovieCatalogController {
 
+    // @Autowired searches for bean type restTemplate
+    @Autowired
+    private RestTemplate restTemplate;
+
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-        // return Collections.singletonList(new CatalogItem("Transformers", "Test", 4));
-
-        RestTemplate restTemplate = new RestTemplate();
+        // Todo : need to update restTemplate to webClient
 
         // get all rated movie ids
-        List<Rating> ratings = Arrays.asList(
-                new Rating("1234",4), new Rating("5678",7), new Rating("9876",44));
+        UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratings/users/" + userId, UserRating.class);
 
-        return ratings.stream().map(rating-> {
-            new CatalogItem("Transformers", "Test", 4);
-        }).collect(Collectors.toList())
+        return ratings.getUserRating().stream().map(rating-> {
+            Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(), Movie.class);
+            return new CatalogItem(movie.getName(), "Test", rating.getRating());
+        }).collect(Collectors.toList());
         // foreach movie id, call movie info service and get details
 
         // merge the data
