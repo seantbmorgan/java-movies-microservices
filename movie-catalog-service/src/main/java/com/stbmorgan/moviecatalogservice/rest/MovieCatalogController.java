@@ -28,10 +28,10 @@ public class MovieCatalogController {
         // Todo : need to update restTemplate to webClient
 
         // get all rated movie ids
-        UserRating ratings = restTemplate.getForObject("http://localhost:8083/ratings/users/" + userId, UserRating.class);
+        UserRating ratings = restTemplate.getForObject("http://movie-ratings-service/ratings/users/" + userId, UserRating.class);
 
         return ratings.getUserRating().stream().map(rating-> {
-            Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId(), Movie.class);
+            Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), Movie.class);
             return new CatalogItem(movie.getName(), "Test", rating.getRating());
         }).collect(Collectors.toList());
         // foreach movie id, call movie info service and get details
