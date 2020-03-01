@@ -12,12 +12,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @SpringBootApplication
 public class MovieCatalogServiceApplication {
 
-//	@Bean
-//	@LoadBalanced
-//	public RestTemplate getRestTemplate(){
-//		return new RestTemplate();
-//	}
-
 	@Bean
 	@LoadBalanced
 	public WebClient.Builder getWebClientBuilder(){

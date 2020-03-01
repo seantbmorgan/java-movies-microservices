@@ -20,17 +20,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/catalog")
 public class MovieCatalogController {
 
-    // @Autowired searches for bean type restTemplate
-//    @Autowired
-//    private RestTemplate restTemplate;
-
     @Autowired
     private WebClient.Builder webClientBuilder;
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
         // get all rated movie ids
-        // UserRating ratings = restTemplate.getForObject("http://movie-ratings-service/ratings/users/" + userId, UserRating.class);
         UserRating ratings = webClientBuilder.build()
                 .get()
                 .uri("http://movie-ratings-service/ratings/users/" + userId)
@@ -39,15 +34,14 @@ public class MovieCatalogController {
                 .block();
 
         return ratings.getUserRating().stream().map(rating-> {
-            //Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(), Movie.class);
             Movie movie = webClientBuilder.build()
                     .get()
                     .uri("http://movie-info-service/movies/" + rating.getMovieId())
                     .retrieve()
                     .bodyToMono(Movie.class)
                     .block();
-                    
-            return new CatalogItem(movie.getName(), "Test", rating.getRating());
+
+            return new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating());
         }).collect(Collectors.toList());
     }
 }
